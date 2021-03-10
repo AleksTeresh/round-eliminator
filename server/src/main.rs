@@ -1,14 +1,10 @@
 mod cli;
 mod search;
 
-use procspawn;
 use clap::{App as ClApp, AppSettings, Arg, SubCommand};
-
-
 
 fn main() {
     env_logger::init();
-    procspawn::init();
 
     let matches = ClApp::new("Sim")
         .version("0.1")
@@ -240,6 +236,6 @@ fn main() {
         let autolb_features = f.value_of("autolb_features").unwrap_or("diag,addarrow");
         let autoub_features = f.value_of("autoub_features").unwrap_or("pred");
         let timeout: u64 = f.value_of("autoub_features").unwrap_or("10000").parse().unwrap();
-        cli::complexity(name, labels, iter, merge, autolb_features, autoub_features, timeout);
+        cli::complexity_from_file(name, labels, iter, merge, autolb_features, autoub_features, timeout);
     }
 }

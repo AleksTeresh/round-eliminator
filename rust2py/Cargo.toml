@@ -1,0 +1,13 @@
+[package]
+name = "re-rust2py"
+version = "0.1.0"
+authors = ["Aleksandr Tereshchenko <aleksandr.tereshchenko@aalto.fi>"]
+edition = "2018"
+
+[lib]
+name = "rust2py"
+crate-type = ["cdylib"]
+
+[dependencies]
+server = { path = "../server" }
+cpython = { version = "0.5", features = ["extension-module"] }

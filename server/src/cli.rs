@@ -1,4 +1,5 @@
 extern crate futures01;
+use procspawn;
 use simulation::do_multiple_speedups;
 use simulation::AutomaticSimplifications;
 use simulation::AutoLb;
@@ -15,20 +16,21 @@ use futures01::sync::mpsc;
 use futures01::Future;
 use futures_cpupool::CpuPool;
 
-use crate::search;
+use crate::search::search_for_complexity;
    
 type Problem = simulation::GenericProblem;
 
-pub fn complexity(
-    name: &str,
+pub fn get_complexity(
+    data: String,
     labels: usize,
     iter: usize,
     merge : bool,
     autolb_features : &str,
     autoub_features : &str,
     timeout: u64
-) {
-    let data = std::fs::read_to_string(name).expect("Unable to read file");
+) -> (String, String) {
+    procspawn::init();
+
     let config = Config {
         compute_triviality : true,
         compute_color_triviality : true,
@@ -41,7 +43,7 @@ pub fn complexity(
         diagramtype : DiagramType::Accurate
     };
 
-    let (lower_bound, upper_bound) = search::search_for_complexity(
+    return search_for_complexity(
         data,
         config,
         labels,
@@ -49,6 +51,28 @@ pub fn complexity(
         merge,
         autolb_features.to_string(),
         autoub_features.to_string(),
+        timeout
+    );
+}
+
+pub fn complexity_from_file(
+    name: &str,
+    labels: usize,
+    iter: usize,
+    merge : bool,
+    autolb_features : &str,
+    autoub_features : &str,
+    timeout: u64
+) {
+    let data = std::fs::read_to_string(name).expect("Unable to read file");
+    
+    let (lower_bound, upper_bound) = get_complexity(
+        data,
+        labels,
+        iter,
+        merge,
+        autolb_features,
+        autoub_features,
         timeout
     );
     println!("Lower bound: {}", lower_bound);

@@ -129,11 +129,16 @@ pub fn search_for_complexity(
   while let Some(events) = multi.wait_events() {
       for event in events {
           if event == pp_search_id {
+              let pp_search_res_unwrapped = pp_search_handle
+                .take();
+              if pp_search_res_unwrapped.is_none() {
+                continue;
+              }
+
               let (round_count,
                    found_periodic_point,
                    found_zero_round
-                ) = pp_search_handle
-                .take()
+                ) = pp_search_res_unwrapped
                 .unwrap()
                 .join()
                 .unwrap();
@@ -142,7 +147,6 @@ pub fn search_for_complexity(
                   lower_bound = String::from("log n");
               }
               if found_zero_round {
-                  println!("Zero round problem was found");
                   lower_bound = round_count.to_string();
                   upper_bound = round_count.to_string();
 
@@ -155,7 +159,12 @@ pub fn search_for_complexity(
               }
           }
           if event == autolb_id {
-              let lower_bound_res = autolb_handle.take().unwrap().join().unwrap();
+              let lower_bound_res_unwrapped = autolb_handle.take();
+              if lower_bound_res_unwrapped.is_none() {
+                  continue;
+              }
+
+              let lower_bound_res = lower_bound_res_unwrapped.unwrap().join().unwrap();
               if lower_bound_res != -1 && lower_bound == "unknown" {
                   lower_bound = lower_bound_res.to_string();
                   if lower_bound == upper_bound { // tight bounds found
@@ -169,7 +178,12 @@ pub fn search_for_complexity(
               }
           }
           if event == autoub_id {
-              let upper_bound_res = autoub_handle.take().unwrap().join().unwrap();
+              let upper_bound_res_unwrapped = autoub_handle.take();
+              if upper_bound_res_unwrapped.is_none() {
+                continue;
+              }
+
+              let upper_bound_res = upper_bound_res_unwrapped.unwrap().join().unwrap();
               if upper_bound_res != -1 && upper_bound == "unknown" {
                   upper_bound = upper_bound_res.to_string();
                   if lower_bound == upper_bound { // tight bounds found
