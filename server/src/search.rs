@@ -197,7 +197,6 @@ pub fn search_for_complexity(
               }
           }
           if event == timeout_id {
-            println!("timeout!");
             terminate_all(
                 &mut pp_search_handle,
                 &mut autolb_handle,
