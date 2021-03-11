@@ -1,6 +1,6 @@
 // the file is adopted from https://crates.io/crates/cpython
 use cpython::{PyResult, Python, py_module_initializer, py_fn};
-use server::cli::get_complexity;
+use server::cli::get_complexity_sequential;
 
 // add bindings to the generated python module
 // N.B: names: "rust2py" must be the name of the `.so` or `.pyd` file
@@ -18,7 +18,7 @@ py_module_initializer!(rust2py, |py, m| {
           merge : bool,
           autolb_features : &str,
           autoub_features : &str,
-          timeout: u64
+          pp_only: bool
         )
       )
     )?;
@@ -38,16 +38,16 @@ fn get_complexity_py(
   merge : bool,
   autolb_features : &str,
   autoub_features : &str,
-  timeout: u64
+  pp_only: bool
 ) -> PyResult<(String, String)> {
-    let out = get_complexity(
+    let out = get_complexity_sequential(
       data.to_string(),
       labels,
       iter,
       merge,
       autolb_features,
       autoub_features,
-      timeout
+      pp_only
     );
     Ok(out)
 }

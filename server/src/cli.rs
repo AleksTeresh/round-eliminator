@@ -16,9 +16,41 @@ use futures01::sync::mpsc;
 use futures01::Future;
 use futures_cpupool::CpuPool;
 
+use crate::search_sequential::search_for_complexity_sequential;
 use crate::search::search_for_complexity;
    
 type Problem = simulation::GenericProblem;
+
+pub fn get_complexity_sequential(
+    data: String,
+    labels: usize,
+    iter: usize,
+    merge : bool,
+    autolb_features : &str,
+    autoub_features : &str,
+    pp_only: bool
+) -> (String, String) {
+    let config = Config {
+        compute_triviality : true,
+        compute_color_triviality : true,
+        compute_color_triviality_passive : false,
+        given_coloring : None,
+        given_coloring_passive : None,
+        compute_mergeable : true,
+        fixed_orientation : None,
+        fixed_orientation_passive : None,
+        diagramtype : DiagramType::Accurate
+    };
+    return search_for_complexity_sequential(
+        data,
+        config,
+        labels,
+        iter,
+        merge,
+        autoub_features.to_string(),
+        pp_only
+    );
+}
 
 pub fn get_complexity(
     data: String,
@@ -53,6 +85,29 @@ pub fn get_complexity(
         autoub_features.to_string(),
         timeout
     );
+}
+
+pub fn complexity_from_file_sequential(
+    name: &str,
+    labels: usize,
+    iter: usize,
+    merge : bool,
+    autolb_features : &str,
+    autoub_features : &str,
+    pp_only: bool
+) {
+    let data = std::fs::read_to_string(name).expect("Unable to read file");
+    let (lower_bound, upper_bound) = get_complexity_sequential(
+        data,
+        labels,
+        iter,
+        merge,
+        autolb_features,
+        autoub_features,
+        pp_only
+    );
+    println!("Lower bound: {}", lower_bound);
+    println!("Upper bound: {}", upper_bound);
 }
 
 pub fn complexity_from_file(
